@@ -12,7 +12,7 @@ Others are; <br>
     hist.(psd[1], binW = 0.1)
     corp.(iris[3:4])
     box2.(iris[-5], col = 1:4, rot = 22, cut = T)
-    barp.(iris,xyChange=T,rot=25)
-    barp.(iris,cum=T,xyChange=T)
+    barp.(iris, xyChange = T, rot = 25)
+    barp.(iris, cum = T, xyChange = T)
     sp.(iris, col = 3)
     ...
