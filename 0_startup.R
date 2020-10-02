@@ -956,7 +956,7 @@ corp. <- function(d, xlab = '', ylab = '', col = 5, legePos = NULL, li = F, el =
         for (i in seq_along(text_num)) {
             text(legeX.(legePos[1]), legeY.(legePos[2] -0.08 *i), adj = ifelse(legePos[1] < 0.5, 0, 1), cex = 0.8, col = '#22222295',
                  label = list(Text1, Text2, Text3, Text4, Text5)[[text_num[i]]],
-                 family = ifelse(Sys.getenv('OS') == '', 'CenturySchoolbook', 'Times New Roman'))
+                 family = ifelse(Sys.getenv('OS') == '', 'CenturySchoolbook', 'Yu Mincho Light'))
         }
     }
     ## http://friendly.github.io/heplots/reference/covEllipses.html
