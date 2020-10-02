@@ -249,7 +249,7 @@ list2tibble. <- function(dL, ...) {
 }  # list2tibble.(as.list(iris))
 
 
-## Transform any data to list == (2020-09-17) ================================================
+## Transform any data to list == (2020-10-02) ================================================
 dLformer. <- function(d, naturalOrder = F, ...) {  # naturalOrder = T/F, or desirable order like c(3, 4, 1, 2) accoding to the list's names
     if (is.atomic(d)) dL <- tibble(d) %>% as.list(.)
     if ('data.frame' %in% class(d)) {
@@ -275,7 +275,7 @@ dLformer. <- function(d, naturalOrder = F, ...) {  # naturalOrder = T/F, or desi
     } else {  # In case of list
         dL <- d
     }
-    dL <- map(dL, ~ .[!is.na(.)]) %>% {if (naturalOrder == TRUE) .[naturalorder(names(.))] else .}
+    dL <- map(dL, ~ unlist(.) %>% .[!is.na(.)]) %>% {if (naturalOrder == TRUE) .[naturalorder(names(.))] else .}
     return (dL)
 }  # dLformer.(iris[1]) dLformer.(iris[4:5]) dLformer.(iris[3:5])
 
