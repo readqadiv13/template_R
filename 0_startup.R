@@ -556,10 +556,10 @@ haloText. <- function(x, y, labels, cex, col = 'grey13', bg = 'white', theta = s
 }
 
 
-## Optimum position of y-axis label == (2020-09-17) ================================================
+## Optimum position of y-axis label == (2020-10-02) ================================================
 yPos. <- function(Ylim2, ...) {
     axisFun.(Ylim2, n = 6)[[1]] %>% {.[between(., Ylim2[1], Ylim2[2])]} %>% {strwidth(.) /strwidth('|||')} %>% #{max(ceiling(.))}
-    max(.) %>% whichSize.(vec = c(1, 2, 3, 3.5, 4), ref = ., c(2.3, 1.9, 1.3, 1.1, 0.9))  # same adjust; -0.1, 0.1, 100
+    max(.) %>% whichSize.(vec = c(1, 2, 3, 3.5, 4), ref = ., c(2.3, 1.5, 1.1, 1.1, 0.9))  # same adjust; -0.1, 0.1, 100
 }
 
 
@@ -607,7 +607,7 @@ save. <- function(name = NULL, type = 'jpg', wh = dev.size(), ...) {
         dev.off()
     }
 }
-save2. <- function(name = NULL, wh = c(4.3, 3.3), ...) {
+save2. <- function(name = NULL, wh = c(4.5, 3.3), ...) {
     saveN <- name %||% now2.()
     if (names(dev.cur()) == 'cario_pdf') dev.off()
     tryPDF <- function(...) {
