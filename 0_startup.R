@@ -1,4 +1,4 @@
-## Ÿ©(¬¥·óú`)Ÿ? (¬¥-`) .?Ω°oO (Common function, 2020-09-15)
+## ?(ÅL?`)? (ÅL-`) .°oO (Common function, 2020-09-15)
 
 ## General parameters == (2020-09-28) ========================
 gp. <- function(...) {
@@ -263,7 +263,7 @@ dLformer. <- function(d, naturalOrder = F, ...) {  # naturalOrder = T/F, or desi
                 dL <- split(d, d[chrTF]) %>% map(~ select_if(., ~ is.numeric(.)) %>% set_names(NULL))  # dLformer.(iris[4:5])
             } else if (sum(numTF) == 1 && sum(timeTF) == 1) {  # [time, y]
                 abbre_time <- function(x) {  # ex.) humidity, temperature, yield, monthly report, ...
-                    aT <- if (delta.(x, 'year') >= 3) format(x, '%YÂπ¥') else if (delta.(x, 'month') >= 4) format(x, '%B') else format(x, '%HÊô?')
+                    aT <- if (delta.(x, 'year') >= 3) format(x, '%YîN') else if (delta.(x, 'month') >= 4) format(x, '%B') else format(x, '%Héû')
                     return (aT)
                 }
                 d <- mutate_if(d, ~ is_time.(.), ~ abbre_time(.))
@@ -374,21 +374,21 @@ jL. <- function(chr, ...) {
 hankana2zenkana. <- function(chr, ...) {
     if (!is.character(chr)) chr <- as.character(chr)
     ## Converting semi-dakuten
-    han <- c('?Ω∂?æ?','?Ω∑?æ?','?Ω∏?æ?','?Ωπ?æ?','?Ω∫?æ?','?Ωª?æ?','?Ωº?æ?','?ΩΩ?æ?','?Ωæ?æ?','?Ωø?æ?','?æÄ?æ?','?æ??æ?','?æÇÔæ?','?æ??æ?','?æ??æ?','?æäÔæ?','?æãÔæ?','?æåÔæ?','?æçÔæ?','?æéÔæ?','?æäÔæ?','?æãÔæ?','?æåÔæ?','?æçÔæ?','?æéÔæ?')
-    zen <- c('„Ç¨','„ÇÆ','„Ç∞','„Ç≤','„Ç¥','„Ç∂','„Ç∏','„Ç∫','„Çº','„Çæ','„ÉÄ','„É?','„É?','„É?','„É?','„É?','„É?','„É?','„É?','„É?','„É?','„É?','„É?','„É?','„É?')
+    han <- c('∂ﬁ','∑ﬁ','∏ﬁ','πﬁ','∫ﬁ','ªﬁ','ºﬁ','Ωﬁ','æﬁ','øﬁ','¿ﬁ','¡ﬁ','¬ﬁ','√ﬁ','ƒﬁ',' ﬁ','Àﬁ','Ãﬁ','Õﬁ','Œﬁ',' ﬂ','Àﬂ','Ãﬂ','Õﬂ','Œﬂ')
+    zen <- c('ÉK','ÉM','ÉO','ÉQ','ÉS','ÉU','ÉW','ÉY','É[','É]','É_','Éa','Éd','Éf','Éh','Éo','Ér','Éu','Éx','É{','Ép','És','Év','Éy','É|')
     for (i in seq_along(zen)) chr <- gsub(han[i], zen[i], chr)
     ## Converting full width space or double spaces to half one
-    chr <- gsub('„ÄÄ|  ', ' ', chr)
+    chr <- gsub('Å@|  ', ' ', chr)
     ## Converting 1bite character
-    out <- chartr('?Ω±?Ω≤?Ω≥?Ω¥?Ωµ?Ω∂?Ω∑?Ω∏?Ωπ?Ω∫?Ωª?Ωº?ΩΩ?Ωæ?Ωø?æÄ?æ??æÇÔæ??æ??æ??æ??æ??æàÔæâÔæäÔæãÔæåÔæçÔæéÔæèÔæêÔæëÔæíÔæìÔæîÔæïÔæñÔæóÔæòÔæôÔæöÔæõÔæúÔΩ¶?æùÔΩ°?Ω¢?Ω£?Ω§?Ω•?Ω¶?Ωß?Ω®?Ω©?Ω™?Ω´?Ω¨?Ω≠?ΩÆ?ΩØ?Ω∞',
-                  '„Ç¢„Ç§„Ç¶„Ç®„Ç™„Ç´„Ç≠„ÇØ„Ç±„Ç≥„Çµ„Ç∑„Çπ„Çª„ÇΩ„Çø„ÉÅ„ÉÑ„É?„Éà„Éä„Éã„Éå„Éç„Éé„Éè„Éí„Éï„?ò„?õ„?û„Éü„É?„É°„É¢„É§„É¶„É®„É©„É™„É´„É¨„É≠„ÉØ„É≤„É≥„ÄÇ„Äå„Äç„ÄÅ„?ª„É≤„Ç°„Ç£„Ç•„Çß„Ç©„É£„É•„Éß„É?„Éº', chr)
+    out <- chartr('±≤≥¥µ∂∑∏π∫ªºΩæø¿¡¬√ƒ≈∆«»… ÀÃÕŒœ–—“”‘’÷◊ÿŸ⁄€‹¶›°¢£§•¶ß®©™´¨≠ÆØ∞',
+                  'ÉAÉCÉEÉGÉIÉJÉLÉNÉPÉRÉTÉVÉXÉZÉ\É^É`ÉcÉeÉgÉiÉjÉkÉlÉmÉnÉqÉtÉwÉzÉ}É~ÉÄÉÅÉÇÉÑÉÜÉàÉâÉäÉãÉåÉçÉèÉíÉìÅBÅuÅvÅAÅEÉíÉ@ÉBÉDÉFÉHÉÉÉÖÉáÉbÅ[', chr)
     return (out)
 }
 
 
 ## Zenkaku convert for Mac/Win == (2020-09-16) ================================================
 zenk. <- function(chr, ...) {
-    out <- chr %>% as.character(.) %>% gsub('\r\n', '', .) %>% gsub('  ', '', .) %>%  # gsub('„Éº', '-', .) # Avoid killing '\n' for box2.()
+    out <- chr %>% as.character(.) %>% gsub('\r\n', '', .) %>% gsub('  ', '', .) %>%  # gsub('Å[', '-', .) # Avoid killing '\n' for box2.()
            {if (any.(validUTF8(.)) || Sys.getenv('OS') != '') . else iconv(., 'utf-8', 'cp932')} %>%
            hankana2zenkana.() %>% map_chr(~ 'stringi'::stri_trans_nfkc(.))
     return (out)
@@ -1251,7 +1251,7 @@ sp. <- function(d, col = NULL, xlab = '', ylab = '', cut = F, conv = T, ...) {  
         })
     }
     okngCol_TF <- dt %>% select_if(~ is.character(.)) %>% map_lgl(., ~ str_detect(., pattern = 'OK|NG') %>% any.(.))
-    resultCol <- which(okngCol_TF) %>% names(.) %>% str_subset(., pattern = 'ÁµêÊûú|Result|result') %>% .[1]  # If failed, return NA
+    resultCol <- which(okngCol_TF) %>% names(.) %>% str_subset(., pattern = 'åãâ |Result|result') %>% .[1]  # If failed, return NA
     dt <- dt %>% select_if(~ n_distinct(.) > 1)  # sd.(.) > 0; sd = 0 causes error; delete somthing like machine number
     if (!is.na(resultCol)) {
         Results <- map.(dt[[resultCol]], function(x) if (x %in% 'OK') 1 else if (x %in% 'NG') 0 else NA)
