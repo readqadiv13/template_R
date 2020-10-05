@@ -172,7 +172,7 @@ dt2time. <- function(d, timeSort = F, timeFactor = NULL, ...) {  # Use this by g
 }  # dt2time.(nya0)
 
 
-## Powerful copy & paste == (2020-09-16) ================================================
+## Powerful copy & paste == (2020-10-04) ================================================
 pp. <- function(...) {
     type_taste <- function(d) d %>% 'hablar'::retype() %>% map_df(~ type_sum(.))
     type_watch <- function(d) {
@@ -185,6 +185,8 @@ pp. <- function(...) {
                 out <- d %>% 'hablar'::retype() %>% dt2time.(., timeSort = F)
             } else if (ncol(d) == 1) {  # just vector you want
                 out <- d %>% 'hablar'::retype() %>% unlist()
+            } else {  # just a body copy
+                out <- d
             }
         } else if (nrow(body_type) == 2 || nrow(body_type) > 4) {  # row1 = column names, row2 ~ body (Including copy of all chr data
           # d <- tibble(X1 = c('Animal','Bird','Cat','Dog')))  # Including all chr data
@@ -216,11 +218,11 @@ pp. <- function(...) {
         str_split(clip, '\t')[[1]]
     }
     clip3 <- if (is.list(clip2)) {
-        type_watch(clip2) %>% {
+        skipMess.(type_watch(clip2)) %>% {  # Infinity data (like 1.0E+299) makes a warning
             if (is.atomic(.)) {
                 .
             } else {
-                mutate_if(., ~ is.character(.), ~ correctChr.(.)) %>% select_if(colSums(is.na(.)) != nrow(.) | !str_detect(names(.), 'X'))
+                mutate_if(., ~ is.character(.), ~ correctChr.(.)) %>% select_if(colSums(is.na(.)) != nrow(.)) # | !str_detect(names(.), 'X'))
             }
         }
     } else {  # Just copying 1 row;  return a vector
@@ -395,15 +397,16 @@ zenk. <- function(chr, ...) {
 }
 
 
-## Reshape text by cutting space & common characters == (2020-09-17) ================================================
+## Reshape text by cutting space & common characters == (2020-10-04) ================================================
 correctChr. <- function(chr, ...) {
     if (str_detect(chr, '[:alpha:]') %>% any.(.) %>% `!`) {
         if (str_detect(chr, '%') %>% any.(.)) chr <- as.vector(chr) %>% parse_number(.) %>% {. /100}  # '12.3%'
         if (str_detect(chr, ',') %>% any.(.)) chr <- as.vector(chr) %>% gsub(',', '', .) %>% parse_number(.)  # "123,456,789", or "\1,000"
     }
     chr[chr %in% ''] <- NA  # str_detect(chr, '') doesn't work well...
-    out <- zenk.(chr)
-    return (out)
+    chr_uni <- unique(chr)
+    for(i in seq_along(chr_uni)) chr[chr %in% chr_uni[i]] <- zenk.(chr_uni[i])  # very faster
+    return (chr)
 }
 
 
@@ -679,7 +682,7 @@ intersectX. <- function(df1, df2, ...) {
 }  # plt.(list(df1, df2); abline(v = intersectX.(df1, df2))
 
 
-## Quick plot == (2020-08-23) ================================================
+## Quick plot == (2020-10-04) ================================================
 plt. <- function(d, natural = F, lty = NA, lwd = NA, xlab = '', ylab = '', col = NULL, Xlims = NA, Ylims = NA,
                  legePos = NA, name = NULL, PDF = T, add = 1, mar = par('mar'), tcl = par('tcl'), type = 0, ...) {
     ## You must prepare a data of list(tibble(x = ~, y = ~)) to draw x-y graph; otherwise n-x & n-y graph are separately drawn
@@ -733,12 +736,13 @@ plt. <- function(d, natural = F, lty = NA, lwd = NA, xlab = '', ylab = '', col =
         legend2.(name, legePos, col, lty)
     }
     if (names(dev.cur()) == 'cairo_pdf' && PDF == T) skipMess.(dev.off())
+    gp.()  # Get back to the default fear of using mar
 }  # plt.(iris[4:5])  plt.(iris[-5], legePos = c(0.01, 0.99), lty = 1)  plt.(psd[[1]])  plt.(list(psd[2:3]), Ylims = c(0, NA))
 
 
-## Kernel Density Estimation plot == (2020-08-22) ================================================
+## Kernel Density Estimation plot == (2020-10-04) ================================================
 dens. <- function(d, bw = 1, natural = F, lty = NA, lwd = NA, xlab = '', ylab = '', col = NULL, Xlims = NA, Ylims = c(0, NA),
-                  legePos = NA, name = NULL, cum = F, ...) {
+                  legePos = NA, name = NULL, mar = par('mar'), cum = F, ...) {
     kde_xy <- function(vec) {
         vec <- vec[!is.na(vec)]
         Bw <- list('nrd0', 'Sj-ste',  # Sheather-Jones
@@ -769,7 +773,7 @@ dens. <- function(d, bw = 1, natural = F, lty = NA, lwd = NA, xlab = '', ylab = 
           } else {
               stop('Only available for [ID,y] or [y1,y2, ...]', call. = F)
           }}
-    plt.(dL, natural, lty, lwd, xlab, ylab, col, Xlims, Ylims, legePos, name)
+    plt.(dL, natural, lty, lwd, xlab, ylab, col, Xlims, Ylims, legePos, name, mar)
 
     ## P-th pecentile
     dL_cum <- map(dL, function(nya) cumP.(nya$y) %>% tibble(x = nya$x, y = .))
@@ -780,9 +784,9 @@ dens. <- function(d, bw = 1, natural = F, lty = NA, lwd = NA, xlab = '', ylab = 
 }  # dens.(iris[4:5], cum = T)  # [ID, y] is OK
 
 
-## Cumulative ratio plot == (2020-10-01) ================================================
+## Cumulative ratio plot == (2020-10-04) ================================================
 crp. <- function(d, lty = NA, lwd = NA, xlab = '', ylab = '', col = NULL, Xlims = NA, Ylims = c(-0.01, 1.05), legePos = c(0.05, 0.98),
-                 name = NULL, px = NULL, py = NULL, ...) {
+                 name = NULL, mar = par('mar'), px = NULL, py = NULL, ...) {
     if (!exists('pLL_nu_lam')) {
         suppressMessages('devtools'::source_url('https://github.com/Nyu3/psd_R/blob/master/PSD_archive.R?raw=TRUE', keep.source = T, chdir = F))
     }
@@ -806,7 +810,7 @@ crp. <- function(d, lty = NA, lwd = NA, xlab = '', ylab = '', col = NULL, Xlims 
         dL_res[[i]] %>% print(.)
         cat(str_c(str_dup('=', 48), '\n'))
     }
-    plt.(c(dL_raw, dL_mdl), PDF = F, xlab = xlab, ylab = ylab, Xlims = Xlims, Ylims = Ylims, add = 0)
+    plt.(c(dL_raw, dL_mdl), PDF = F, xlab = xlab, ylab = ylab, Xlims = Xlims, Ylims = Ylims, mar = mar, add = 0)
     plt.(dL_mdl, PDF = F, type = 0, add = 2, name = 0, col = col, lty = lty, lwd = lwd)
     plt.(dL_raw, PDF = T, type = 1, add = 2, col = col, lty = lty, lwd = lwd, legePos = legePos)
     if (!is.null(px)) {
@@ -822,8 +826,9 @@ crp. <- function(d, lty = NA, lwd = NA, xlab = '', ylab = '', col = NULL, Xlims 
 }  # crp.(iris[1:2])
 
 
-## Histograms plot == (2020-07-13) ================================================
-hist. <- function(d, naturalOrder = F, binW = 'st', freq = T, xlab = '', ylab = '', col = NULL, Xlims = NA, Ylims = c(0, NA), plot = T, ...) {
+## Histograms plot == (2020-10-02) ================================================
+hist. <- function(d, naturalOrder = F, binW = 'st', freq = T, xlab = '', ylab = '', col = NULL, Xlims = NA, Ylims = c(0, NA),
+                  mar = par('mar'), plot = T, ...) {
     ## Cut data range by Xlims
     ## Make the bin width (if vec is only integer, the ticks are positioned in the center of each bar)
     whatBreak <- function(vec) {
@@ -867,7 +872,7 @@ hist. <- function(d, naturalOrder = F, binW = 'st', freq = T, xlab = '', ylab = 
     }
     Ylim2 <- pr.(vec = ifelse(is.na(Ylims[2]), Ymax, Ylims[2]), Ylims, 0.08)
     ylab <- if (ylab == '' && freq) 'Frequency' else if (ylab == '' && !freq) 'Density' else ylab
-    par(mgp = c(0, 0.4, 0))
+    par(mar = mar, mgp = c(0, 0.4, 0))
     for (i in seq_along(dL)) {
         hist(dL[[i]], ann = F, axes = F, freq = freq, xlim = Xlim2, ylim = Ylim2, col = colTr.(col[i], 0.80), breaks = whatBreak(dL[[i]]))
         for (i in 1:2) {
@@ -878,6 +883,7 @@ hist. <- function(d, naturalOrder = F, binW = 'st', freq = T, xlab = '', ylab = 
         mtext(xlab, side = 1, las = 1, cex = 1, family = jL.(xlab), line = par('mar')[1] -1.00)
         mtext(ylab, side = 2, las = 3, cex = 1, family = jL.(ylab), line = par('mar')[2] -yPos.(Ylim2))
     }
+    gp.()
     if (names(dev.cur()) == 'cairo_pdf') skipMess.(dev.off())
 }  # hist.(psd[1], binW = 0.1)
 
@@ -894,12 +900,12 @@ pie. <- function(d, ...) {  # Desirable for character data
 }  # pie.(iris[5])
 
 
-## Linear correlation plot == (2020-08-20) ================================================
+## Linear correlation plot == (2020-10-04) ================================================
 ## NOTE.1  Regression analysis is strictly applicable to cause (x) and effect (y; random variable) on the assumption that x has NO error...
 ## NOTE.2  Correlation analysis sees BOTH x & y as random variables; thus don't use linear regression and prob. ellipse at the same time...
 ## Trivia.1  You'll see the cross points on the line and ellipse can draw y-axis parallel lines as tangent
 ## Trivia.2  The longer axis of the ellipse is corresponding to the axis of principal component analysis
-corp. <- function(d, xlab = '', ylab = '', col = 5, legePos = NULL, li = F, el = T, fix = F, ...) {  # xy data
+corp. <- function(d, xlab = '', ylab = '', col = 5, legePos = NULL, li = F, el = T, fix = F, mar = par('mar'), ...) {  # xy data
     dt <- list2tibble.(d) %>% mutate_if(~ is.numeric(.), ~ ifelse(. == -Inf | . == Inf, NA, .))  # For normalization to make it
     dt <- pmap(dt, ~ is.na(c(...)) %>% any(.)) %>% unlist(.) %>% `!` %>% dt[., ]  # Delete the row containing one NA at least
     dt <- dt %>% 'dplyr'::filter(rowSums(is.na(.)) == 0)  # Omit the row including any NA
@@ -975,7 +981,7 @@ corp. <- function(d, xlab = '', ylab = '', col = 5, legePos = NULL, li = F, el =
     if (fix == TRUE) {  # Wnen the same scale on both x and y-axis is desired
         def.(c('Xlim2', 'Ylim2'), list(range(Xlim2, Ylim2), range(Xlim2, Ylim2)))
     }
-    par(mgp = c(0, 0.4, 0))
+    par(mar = mar, mgp = c(0, 0.4, 0))
     plot.new()
     plot.window(xlim = Xlim2, ylim = Ylim2)
     Colcol <- if (nrow(dt) >= 20) {
@@ -996,12 +1002,13 @@ corp. <- function(d, xlab = '', ylab = '', col = 5, legePos = NULL, li = F, el =
     mtext(ylab, side = 2, las = 3, cex = 1, family = jL.(ylab), line = par('mar')[2] -yPos.(Ylim2))
     textP <- text_pos()
     text3(textP)
+    gp.()
     if (names(dev.cur()) == 'cairo_pdf') skipMess.(dev.off())
 }  # corp.(iris[3:4])
 
 
-## Boxplot oriented for quantile limit and full/half box == (2020-09-17) ================================================
-boxplot2. <- function(dL, type, jit, val, wid, Ylims, col, name, xlab, ylab, rot, cex, cut, ...) {
+## Boxplot oriented for quantile limit and full/half box == (2020-10-04) ================================================
+boxplot2. <- function(dL, type, jit, val, wid, Ylims, col, name, xlab, ylab, mar, rot, cex, cut, ...) {
     if (cut == TRUE) {
         for (i in seq_along(dL)) {
             vec <- dL[[i]]
@@ -1066,7 +1073,7 @@ boxplot2. <- function(dL, type, jit, val, wid, Ylims, col, name, xlab, ylab, rot
         text(xPos +AT, dD[3, ], labels = sprintf(str_c('%.', Digit, 'f'), dD[3, ]), col = 'grey70', cex = tCex, adj = c(0.5, -1.0))
     }
     ## base plot
-    par(mgp = c(0, 0.4, 0))
+    par(mar = mar, mgp = c(0, 0.4, 0))
     if (length(dL) > 30) par(mar = c(4, 3.3, 0.1, 1.0))
     Xlim2 <- c(-1, 2 *length(dL) +1) +wid *c(1, -1)
     Ylim2 <- pr.(dL, Ylims, 0.07)  # NOTE: text of Max or Min is not shown by 0.05
@@ -1102,10 +1109,12 @@ boxplot2. <- function(dL, type, jit, val, wid, Ylims, col, name, xlab, ylab, rot
     points_outliers()
     box_whiskers()
     if (val == TRUE) textFun()
+    gp.()
 }
 
 box2. <- function(d, type = 'half', jit = T, val = T, natural = F, wid = 0.75, Ylims = NA, col = 0, name = NULL, xlab = '', ylab = '',
-                  rot = 0, cex = NULL, cut = F, sel = NULL, med_order = F, name_marking = NULL, col_marking = NULL, PDF = T, ...) {
+                  mar = par('mar'), rot = 0, cex = NULL, cut = F, sel = NULL, med_order = F, name_marking = NULL, col_marking = NULL,
+                  PDF = T, ...) {
     dL <- dLformer.(d, natural)  # you can control an order something like  'OK' 'NG'  by sel = ~
     if (!is.null(sel)) dL <- n_cyc.(sel) %>% dL[.]  # try  as.list(iris)[0: 100] %>% dLformer.(.)
     if (med_order == T) dL <- median.(dL) %>% order(., decreasing = T) %>% dL[.]  # Show the graph like Pareto chart
@@ -1116,17 +1125,17 @@ box2. <- function(d, type = 'half', jit = T, val = T, natural = F, wid = 0.75, Y
     ## Signle or multiple boxplot
     if (!'list' %in% class(dL[[1]])) {  # type: [ID, y] or [y1, y2, y3, ...]
         if (map_lgl(dL, ~ is.numeric(.)) %>% any(.) %>% `!`) stop('The data does NOT any numeric data...\n\n', call. = F)
-        boxplot2.(dL, type, jit, val, wid, Ylims, col, name, xlab, ylab, rot, cex, cut)
+        boxplot2.(dL, type, jit, val, wid, Ylims, col, name, xlab, ylab, mar, rot, cex, cut)
     } else {  # type: [ID, y1, y2, y3, ...]
-        for (i in seq_along(dL)) boxplot2.(dL[[i]], type, jit, val, wid, Ylims, col, name, xlab, ylab = names(dL[i]), rot, cut)
+        for (i in seq_along(dL)) boxplot2.(dL[[i]], type, jit, val, wid, Ylims, col, name, xlab, ylab = names(dL[i]), mar, rot, cut)
     }
     if (names(dev.cur()) == 'cairo_pdf' && PDF == T) skipMess.(dev.off())
 }  # box2.(iris[-5], col = 1:4, rot = 22, cut = T)  box2.(iris)
 
 
-## Bar plot == (2020-09-16) ================================================
+## Bar plot == (2020-10-04) ================================================
 barp. <- function(d, wid = 0.5, spacer = 0.5, cum = F, xyChange = F, digit = NULL, elementChange = F, xlab = '', ylab = '', Ylims = c(0, NA),
-                  color = NULL, legePos = NULL, name = NULL, cex = NULL, rot = 0, ...) {
+                  col = NULL, legePos = NULL, name = NULL, cex = NULL, rot = 0, ...) {
     d <- list2tibble.(d)
     d2 <- if (map_lgl(d, is.numeric) %>% all()) {  # [y1, y2, ...]
         if (is.atomic(d)) {
@@ -1166,7 +1175,7 @@ barp. <- function(d, wid = 0.5, spacer = 0.5, cum = F, xyChange = F, digit = NUL
     }
 
     ## Base plot
-    col2 <- {if (is.null(color)) colors.() else color} %>% colors.(., d = if (nrow(mat_avg) == 1) 1:ncol(mat_avg) else 1:nrow(mat_avg)) %>%
+    col2 <- {if (is.null(col)) colors.() else col} %>% colors.(., d = if (nrow(mat_avg) == 1) 1:ncol(mat_avg) else 1:nrow(mat_avg)) %>%
             colTr.(., tr = 0.6)
     pos <- barplot(mat_avg, beside = !cum, horiz = xyChange, plot = F,
                    space = if (!cum) NULL else spacer,
@@ -1238,8 +1247,8 @@ barp. <- function(d, wid = 0.5, spacer = 0.5, cum = F, xyChange = F, digit = NUL
    # barp.(iris[-5],spacer=-0.1)
 
 
-## Scatter plot marix (Non-parametric evaluation) == (2020-08-20) ========================
-sp. <- function(d, col = NULL, xlab = '', ylab = '', cut = F, conv = T, ...) {  # (conv = T) means normalization of all data
+## Scatter plot marix (Non-parametric evaluation) == (2020-10-04) ========================
+sp. <- function(d, col = NULL, xlab = '', ylab = '', mar = par('mar'), cut = F, conv = T, ...) {  # (conv = T) means normalization of all data
     dt <- list2tibble.(d) %>% mutate_if(~ is.numeric(.), ~ ifelse(. == -Inf | . == Inf, NA, .))  # For normalization to make it
     dt <- pmap(dt, ~ is.na(c(...)) %>% any(.)) %>% unlist(.) %>% `!` %>% dt[., ]  # Delete the row containing one NA at least
     if (nrow(dt) == 0) return (cat('\n    No available data...\n'))
@@ -1263,7 +1272,7 @@ sp. <- function(d, col = NULL, xlab = '', ylab = '', cut = F, conv = T, ...) {  
                  c('springgreen1', 'springgreen4', 'seagreen3'), c('dodgerblue1', 'dodgerblue4', 'skyblue3'),
                  c('tomato1', 'tomato4', 'red1')) %>%
                  {if (is.null(col)) c(0, 0, 0) else .[[n_cyc.(col, 5)]]}
-    par(family = jL.(names(dt)))
+    par(mar = mar, family = jL.(names(dt)))
     'psych'::pairs.panels(dt, smooth = T, scale = T, density = T, ellipses = T, stars = T, lm = T, method = 'spearman', pch = 21, gap = 0.3,
                           cex.cor = 1.3, cex.labels = 0.8, col = cols[1], bg = colTr.(cols[2], 0.5), hist.col = colTr.(cols[3], 0.8),
                           cex.axis = ifelse(par('family') == 'Avenir Next', 1, 0.95)
@@ -1274,6 +1283,7 @@ sp. <- function(d, col = NULL, xlab = '', ylab = '', cut = F, conv = T, ...) {  
     if (names(dev.cur()) == 'cairo_pdf') skipMess.(dev.off())
     corMat.(dt)  # Research of several types of correlations
     cat('\n    Data number = ', nrow(dt), '\n\n')
+    gp.()
 }  # sp.(iris, col = 3); save.('nya', WH = c (4.3, 3.3) *1.8)
 
 
